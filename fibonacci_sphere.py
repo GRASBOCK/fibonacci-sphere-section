@@ -27,17 +27,16 @@ def fibonacci_sphere_section(num_points_whole_sphere: int, bbox: BoundingBox):
 
     i_min = linInterp(z_min_bound, z_max_bound, 0.0, float(num_points_whole_sphere), z_min) # smallest i where z is within bounding box latitude
     i_max = linInterp(z_min_bound, z_max_bound, 0.0, float(num_points_whole_sphere), z_max) # biggest i where z is within bounding box latitude
-
-    circulations = ceil((i_max - i_min)/repeat) # number of circulations
+    i_min_0 = np.floor(i_min / repeat) * repeat # smallest i at 0° degrees
+    circulations = ceil((i_max - i_min_0)/repeat) # number of circulations
     
     relative_begin = linInterp(0.0, np.pi*2, 0.0, repeat, lon_min) # relative index to start of bounding box longitude
     relative_end = linInterp(0.0, np.pi*2, 0.0, repeat, lon_max) # relative index to end of bounding box longitude
 
-    theta_offset = i_min*ga # this is needed, otherwise the origin jumps with the number of points
     theta = []
     z = []
     for r in range(circulations):
-        offset = repeat*r + i_min
+        offset = repeat*r + i_min_0
 
         i_start = ceil(offset + relative_begin)
         i_end = int(offset + relative_end)
@@ -50,7 +49,7 @@ def fibonacci_sphere_section(num_points_whole_sphere: int, bbox: BoundingBox):
         #print("r: {r:4d}, o: {o:.3f}, s: {s:.3f}, e: {e:.3f}".format(r=r, o=offset, s=offset + relative_begin, e=offset + relative_end), indices, list(indices))
         
         for i in indices:
-            theta.append(ga*i-theta_offset)
+            theta.append(ga*i)
             z.append(z_step-1.0 + z_step*i)
 
     theta = np.array(theta)
